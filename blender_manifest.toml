@@ -1,0 +1,29 @@
+
+schema_version = "1.0.0"
+
+id = "alcove_dof_visualizer"
+version = "1.0.0"
+name = "Alcove DoF Visualizer"
+tagline = "Adds a real-time depth of field overlay and text info"
+maintainer = "Mehdi El Fadil - Alcove design"
+type = "add-on"
+
+website = "https://github.com/alcove-design/alcove-dof-visualizer"
+
+# # as per https://docs.blender.org/manual/en/dev/advanced/extensions/tags.html
+ tags = ["3D View", "Camera"]
+
+blender_version_min = "4.2.0"
+# # Optional: Blender version that the extension does not support, earlier versions are supported.
+# # This can be omitted and defined later on the extensions platform if an issue is found.
+# blender_version_max = "5.1.0"
+
+# License conforming to https://spdx.org/licenses/ (use "SPDX: prefix)
+# https://docs.blender.org/manual/en/dev/advanced/extensions/licenses.html
+license = [
+  "SPDX:GPL-3.0-or-later"
+]
+
+copyright = [
+  "2025 Mehdi El Fadil - Alcove design"
+]
