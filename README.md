@@ -1,8 +1,9 @@
-# Hyperfocus DoF Visualizer
+# Alcove DoF Visualizer
 
 A Blender addon that provides real-time depth of field visualization in the 3D viewport. Helps cinematographers and photographers visualize focus zones, hyperfocal distances, and DoF limits directly in their scene.
 
 ![In Development](https://img.shields.io/badge/status-in--development-yellow)
+
 
 ## Features
 
@@ -18,17 +19,16 @@ A Blender addon that provides real-time depth of field visualization in the 3D v
 
 ### 1. Download the addon
 
+In the [Releases](/alcove-design/alcove-dof-visualizer/releases) section of this repository, download the **ZIP file** that matches your Blender version.
 
-In the [Releases](#) section of this repository, download the **ZIP file** that matches your Blender version.
-
-Our files are named using the format:  `vX.Y.Z-blenderA.B.zip`.
+The releases are named using the format:  `vX.Y.Z-blenderA.B`.
  
-For instance, if you use Blender v4.5, you should download latest release with suffix `-blender4.5`.
+For instance, if you use Blender `v4.5`, you should download latest release with suffix `-blender4.5`.
 
 
 ### 2. Install the addon in blender
 
-1. **Do not extract** the ZIP file—install it as-is.
+1. **Do not extract** the ZIP file - install it as-is.
 2. Open **Blender**.
 3. Go to **Edit > Preferences > Add-ons**.
 4. Click the **Install...** button at the top right.
