@@ -25,6 +25,8 @@ The releases are named using the format:  `vX.Y.Z-blenderA.B`.
  
 For instance, if you use Blender `v4.5`, you should download latest release with suffix `-blender4.5`.
 
+N.B. This addon relies on `numpy` python module, which should already be included in blender's python environment, so no extra install is needed.
+
 
 ### 2. Install the addon in blender
 
