@@ -35,7 +35,10 @@ jobs:
       - name: Get tag message
         id: tag
         run: |
-          tag_message=$(git tag -l --format='%(contents)' ${GITHUB_REF_NAME})
+          tag_message=$(gh api repos/${{ github.repository }}/releases/tags/${GITHUB_REF_NAME} --jq '.name // empty' 2>/dev/null || echo "")
+          if [ -z "$tag_message" ]; then
+            tag_message=$(gh api repos/${{ github.repository }}/git/refs/tags/${GITHUB_REF_NAME} | jq -r '.object.sha' | xargs -I {} gh api repos/${{ github.repository }}/git/tags/{} | jq -r '.message // ""')
+          fi
           echo "message=$tag_message" >> $GITHUB_OUTPUT
 
       - name: Upload release
