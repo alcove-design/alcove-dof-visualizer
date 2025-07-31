@@ -2,7 +2,7 @@
 
 A Blender addon that provides real-time depth of field visualization in the 3D viewport. Helps cinematographers and photographers visualize focus zones, hyperfocal distances, and DoF limits directly in their scene.
 
-![In Development](https://img.shields.io/badge/status-in--development-yellow)
+![Experimental](https://img.shields.io/badge/status-experimental-yellow)
 
 
 ## Features
