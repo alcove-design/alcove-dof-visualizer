@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # fetch full history including tags
 
       - name: Install GitHub CLI
         run: sudo apt-get update && sudo apt-get install -y gh
@@ -33,6 +35,7 @@ jobs:
       - name: Get tag message
         id: tag
         run: |
+          git fetch --tags
           tag_message=$(git tag -l --format='%(contents)' ${GITHUB_REF_NAME})
           echo "message=$tag_message" >> $GITHUB_OUTPUT
 
