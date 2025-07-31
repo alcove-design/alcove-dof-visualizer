@@ -45,7 +45,7 @@ def get_area_dof_setting_by_index(area_index, prop_name, default=False):
 	"""Get DoF setting by area index"""
 	if area_index == -1:
 		return default
-	
+
 	from .properties import get_area_property_name
 	prop_name = get_area_property_name(area_index, prop_name)
 	return getattr(bpy.context.window_manager, prop_name, default)
@@ -110,17 +110,17 @@ def update_handlers(context):
 	area_index = get_area_index(context)
 	if area_index == -1:
 		return
-	
+
 	area_enabled = (get_area_dof_setting(context, "show_depth_of_field") or 
 					get_area_dof_setting(context, "show_focal_plane") or 
 					get_area_dof_setting(context, "show_dof_limits") or
 					get_area_dof_setting(context, "show_text_info"))
-	
+
 	if area_enabled and area_index not in dof_viz_state["area_handlers"]:
 		register_area_handlers(context, area_index)
 	elif not area_enabled and area_index in dof_viz_state["area_handlers"]:
 		unregister_area_handlers(area_index)
-	
+
 	# Manage global depsgraph handler
 	any_area_enabled = is_any_area_enabled()
 	if any_area_enabled and dof_viz_state["depsgraph_handler"] is None:
@@ -137,11 +137,11 @@ def register_area_handlers(context, area_index):
 	state = dof_viz_state
 	if area_index in state["area_handlers"]:
 		return
-	
+
 	# Create batches if not already created
 	if not state["mesh_batches"]:
 		create_batches(context)
-	
+
 	# Register handlers for this specific area
 	draw_handler = bpy.types.SpaceView3D.draw_handler_add(
 		lambda ctx: dof_draw_callback(ctx, area_index), 
@@ -151,49 +151,49 @@ def register_area_handlers(context, area_index):
 		lambda ctx: draw_dof_info_text(ctx, area_index), 
 		(context,), 'WINDOW', 'POST_PIXEL'
 	)
-	
+
 	state["area_handlers"][area_index] = {
 		"draw_handler": draw_handler,
 		"text_handler": text_handler
 	}
-	
+
 	print(f"DoF Visualizer: Handlers Registered for area {area_index}")
 
 def unregister_area_handlers(area_index):
 	state = dof_viz_state
 	if area_index not in state["area_handlers"]:
 		return
-	
+
 	handlers = state["area_handlers"][area_index]
-	
+
 	if handlers["draw_handler"] is not None:
 		bpy.types.SpaceView3D.draw_handler_remove(handlers["draw_handler"], 'WINDOW')
 	if handlers["text_handler"] is not None:
 		bpy.types.SpaceView3D.draw_handler_remove(handlers["text_handler"], 'WINDOW')
-	
+
 	del state["area_handlers"][area_index]
-	
+
 	# Clean up global state if no areas are active
 	if not state["area_handlers"]:
 		state["mesh_batches"].clear()
 		state["shader"] = None
-	
+
 	print(f"DoF Visualizer: Handlers Unregistered for area {area_index}")
 
 def unregister_all_handlers():
 	"""Unregister all handlers (used during addon unregister)"""
 	state = dof_viz_state
-	
+
 	# Unregister all area handlers
 	for area_index in list(state["area_handlers"].keys()):
 		unregister_area_handlers(area_index)
-	
+
 	# Unregister depsgraph handler
 	if state["depsgraph_handler"] is not None:
 		if state["depsgraph_handler"] in bpy.app.handlers.depsgraph_update_post:
 			bpy.app.handlers.depsgraph_update_post.remove(state["depsgraph_handler"])
 		state["depsgraph_handler"] = None
-	
+
 	print("DoF Visualizer: All Handlers Unregistered")
 
 @timeit
@@ -202,127 +202,25 @@ def create_batches(context):
 	state["mesh_batches"].clear()
 	if state["shader"] is None:
 		state["shader"] = gpu.types.GPUShader(vertex_shader, fragment_shader)
-	
+
 	depsgraph = context.evaluated_depsgraph_get()
 	visible_meshes = {obj.name for obj in context.visible_objects if obj.type == 'MESH'}
-	
+
 	# Process objects in parallel-friendly way
 	for obj in context.visible_objects:
 		if obj.type == 'MESH' and obj.data:
 			create_single_batch(obj, depsgraph, state)
-	
+
 	# Cache the current visible meshes for comparison
 	state["cached_visible_meshes"] = visible_meshes
 
-def update_specific_batches(context, changed_objects):
-	"""Update only specific objects that changed"""
-	state = dof_viz_state
-	depsgraph = context.evaluated_depsgraph_get()
-	
-	for obj_name in changed_objects:
-		obj = bpy.context.scene.objects.get(obj_name)
-		if obj and obj.type == 'MESH' and obj.visible_get():
-			create_single_batch(obj, depsgraph, state)
-
-def create_single_batch(obj, depsgraph, state):
-	"""Create batch for a single object with optimizations"""
-	try:
-		obj_eval = obj.evaluated_get(depsgraph)
-		mesh = obj_eval.to_mesh()
-	except:
-		mesh = obj.data
-	
-	if not mesh.vertices or not mesh.loops:
-		if 'to_mesh_clear' in dir(obj_eval): 
-			obj_eval.to_mesh_clear()
-		return
-	
-	# Pre-allocate arrays with correct size
-	vertex_count = len(mesh.vertices)
-	vertex_positions = np.empty(vertex_count * 3, dtype=np.float32)
-	vertex_normals = np.empty(vertex_count * 3, dtype=np.float32)
-	
-	# Use foreach_get for faster data access
-	mesh.vertices.foreach_get("co", vertex_positions)
-	mesh.vertices.foreach_get("normal", vertex_normals)
-	
-	# Reshape in-place
-	vertex_positions.shape = (-1, 3)
-	vertex_normals.shape = (-1, 3)
-	
-	# Calculate triangles once
-	mesh.calc_loop_triangles()
-	triangle_count = len(mesh.loop_triangles)
-	
-	if triangle_count == 0:
-		if 'to_mesh_clear' in dir(obj_eval): 
-			obj_eval.to_mesh_clear()
-		return
-	
-	# Pre-allocate triangle indices
-	loop_triangle_indices = np.empty(triangle_count * 3, dtype=np.int32)
-	mesh.loop_triangles.foreach_get("vertices", loop_triangle_indices)
-
-	# Direct indexing for triangle data
-	tris_vertices = vertex_positions[loop_triangle_indices]
-	tris_normals = vertex_normals[loop_triangle_indices]
-	
-	# Create batch
-	batch = batch_for_shader(
-		state["shader"], 'TRIS', 
-		{"pos": tris_vertices, "normal": tris_normals}
-	)
-	
-	state["mesh_batches"][obj.name] = {
-		"batch": batch,
-		"matrix": obj.matrix_world
-	}
-	
-	if 'to_mesh_clear' in dir(obj_eval): 
-		obj_eval.to_mesh_clear()
-
-def dof_draw_callback(context, target_area_index):
-	"""The main drawing function called by the handler."""
-	# Only draw if we're in the target area
-	current_area_index = get_area_index(context)
-	if current_area_index != target_area_index:
-		return
-	
+def calculate_dof_info(context):
+	"""Calculate DoF parameters using a physically-based model and store in state"""
 	scene_cam = context.scene.camera
 	if not scene_cam or not scene_cam.data.dof.use_dof:
+		dof_viz_state["info_data"] = {}
 		return
 
-	if not context.space_data.overlay.show_overlays:
-		return
-
-	# Only draw in Solid viewport shading mode
-	if context.space_data.shading.type != 'SOLID':
-		return
-
-	# Check area-specific settings
-	area_show_dof = get_area_dof_setting_by_index(target_area_index, "show_depth_of_field")
-	area_show_focal_plane = get_area_dof_setting_by_index(target_area_index, "show_focal_plane")
-	area_show_limits = get_area_dof_setting_by_index(target_area_index, "show_dof_limits")
-	
-	if not area_show_dof and not area_show_focal_plane and not area_show_limits:
-		return
-
-	state = dof_viz_state
-	scene_cam = context.scene.camera
-	region_3d = context.space_data.region_3d
-	if not scene_cam or not state["shader"] or not region_3d:
-		return
-
-	state["current_camera"] = scene_cam
-
-	# --- Get Matrices ---
-	viewport_view_matrix = region_3d.view_matrix
-	viewport_projection_matrix = region_3d.window_matrix
-	scene_camera_view_matrix = scene_cam.matrix_world.inverted()
-
-	# --- Unified Physical DoF Calculation ---
-	# Use a single, physically-based model for both the overlay and the text info
-	# to ensure they are always synchronized.
 	cam_data = scene_cam.data
 	fstop = cam_data.dof.aperture_fstop
 	focal_length_m = cam_data.lens / 1000.0
@@ -340,26 +238,139 @@ def dof_draw_callback(context, target_area_index):
 	dof_near, dof_far, hyperfocal = 0.0, float('inf'), float('inf')
 
 	if fstop > 0 and focus_distance > 0:
-		coc = sensor_width_m / 1500 # Standard CoC calculation
-		hyperfocal = (focal_length_m**2) / (fstop * coc)
-		
+		coc = sensor_width_m / 1500
+		hyperfocal = (focal_length_m**2) / (fstop * coc) + focal_length_m
+
 		s_minus_f = focus_distance - focal_length_m
 		if s_minus_f > 0:
-			# If focused beyond the hyperfocal distance, DoF is infinite
 			if focus_distance >= hyperfocal:
 				dof_far = float('inf')
 			else:
 				dof_far = (hyperfocal * focus_distance) / (hyperfocal - s_minus_f)
-			
+
 			dof_near = (hyperfocal * focus_distance) / (hyperfocal + s_minus_f)
 
-	# Store the calculated values for the text display
-	state["info_data"] = {
+	dof_viz_state["info_data"] = {
 		"focus_distance": focus_distance,
 		"dof_near": dof_near,
 		"dof_far": dof_far,
 		"hyperfocal": hyperfocal,
 	}
+
+def update_specific_batches(context, changed_objects):
+	"""Update only specific objects that changed"""
+	state = dof_viz_state
+	depsgraph = context.evaluated_depsgraph_get()
+
+	for obj_name in changed_objects:
+		obj = bpy.context.scene.objects.get(obj_name)
+		if obj and obj.type == 'MESH' and obj.visible_get():
+			create_single_batch(obj, depsgraph, state)
+
+def create_single_batch(obj, depsgraph, state):
+	"""Create batch for a single object with optimizations"""
+	try:
+		obj_eval = obj.evaluated_get(depsgraph)
+		mesh = obj_eval.to_mesh()
+	except:
+		mesh = obj.data
+
+	if not mesh.vertices or not mesh.loops:
+		if 'to_mesh_clear' in dir(obj_eval): 
+			obj_eval.to_mesh_clear()
+		return
+
+	# Pre-allocate arrays with correct size
+	vertex_count = len(mesh.vertices)
+	vertex_positions = np.empty(vertex_count * 3, dtype=np.float32)
+	vertex_normals = np.empty(vertex_count * 3, dtype=np.float32)
+
+	# Use foreach_get for faster data access
+	mesh.vertices.foreach_get("co", vertex_positions)
+	mesh.vertices.foreach_get("normal", vertex_normals)
+
+	# Reshape in-place
+	vertex_positions.shape = (-1, 3)
+	vertex_normals.shape = (-1, 3)
+
+	# Calculate triangles once
+	mesh.calc_loop_triangles()
+	triangle_count = len(mesh.loop_triangles)
+
+	if triangle_count == 0:
+		if 'to_mesh_clear' in dir(obj_eval): 
+			obj_eval.to_mesh_clear()
+		return
+
+	# Pre-allocate triangle indices
+	loop_triangle_indices = np.empty(triangle_count * 3, dtype=np.int32)
+	mesh.loop_triangles.foreach_get("vertices", loop_triangle_indices)
+
+	# Direct indexing for triangle data
+	tris_vertices = vertex_positions[loop_triangle_indices]
+	tris_normals = vertex_normals[loop_triangle_indices]
+
+	# Create batch
+	batch = batch_for_shader(
+		state["shader"], 'TRIS', 
+		{"pos": tris_vertices, "normal": tris_normals}
+	)
+
+	state["mesh_batches"][obj.name] = {
+		"batch": batch,
+		"matrix": obj.matrix_world
+	}
+
+	if 'to_mesh_clear' in dir(obj_eval): 
+		obj_eval.to_mesh_clear()
+
+def dof_draw_callback(context, target_area_index):
+	"""The main drawing function called by the handler."""
+	# Only draw if we're in the target area
+	current_area_index = get_area_index(context)
+	if current_area_index != target_area_index:
+		return
+
+	scene_cam = context.scene.camera
+	if not scene_cam or not scene_cam.data.dof.use_dof:
+		return
+
+	if not context.space_data.overlay.show_overlays:
+		return
+
+	# Only draw in Solid viewport shading mode
+	if context.space_data.shading.type != 'SOLID':
+		return
+
+	# Calculate DoF info
+	calculate_dof_info(context)
+
+	# Get the calculated values from state
+	info_data = dof_viz_state.get("info_data", {})
+	dof_near = info_data.get("dof_near", 0.0)
+	dof_far = info_data.get("dof_far", float('inf'))
+	focus_distance = info_data.get("focus_distance", 0.0)
+
+	# Check area-specific settings
+	area_show_dof = get_area_dof_setting_by_index(target_area_index, "show_depth_of_field")
+	area_show_focal_plane = get_area_dof_setting_by_index(target_area_index, "show_focal_plane")
+	area_show_limits = get_area_dof_setting_by_index(target_area_index, "show_dof_limits")
+
+	if not area_show_dof and not area_show_focal_plane and not area_show_limits:
+		return
+
+	state = dof_viz_state
+	scene_cam = context.scene.camera
+	region_3d = context.space_data.region_3d
+	if not scene_cam or not state["shader"] or not region_3d:
+		return
+
+	state["current_camera"] = scene_cam
+
+	# --- Get Matrices ---
+	viewport_view_matrix = region_3d.view_matrix
+	viewport_projection_matrix = region_3d.window_matrix
+	scene_camera_view_matrix = scene_cam.matrix_world.inverted()
 
 	# --- GPU State & Uniforms ---
 	frag_depth_offset = 0.000001
@@ -426,18 +437,21 @@ def draw_dof_info_text(context, target_area_index):
 	current_area_index = get_area_index(context)
 	if current_area_index != target_area_index:
 		return
-	
+
 	scene_cam = context.scene.camera
 	if not scene_cam or not scene_cam.data.dof.use_dof:
 		return
 
 	if not context.space_data.overlay.show_overlays:
 		return
-	
+
 	# Check area-specific text info setting
 	if not get_area_dof_setting_by_index(target_area_index, "show_text_info"):
 		return
-		
+
+	# Calculate DoF info
+	calculate_dof_info(context)
+
 	info_data = dof_viz_state.get("info_data")
 	if not info_data:
 		return
