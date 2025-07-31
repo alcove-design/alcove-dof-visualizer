@@ -1,10 +1,9 @@
 import bpy
 import gpu
 import blf
-import numpy as np
 from mathutils import Vector
-from gpu_extras.batch import batch_for_shader
 
+from .batches import create_batches, update_specific_batches, create_single_batch
 from .shaders import vertex_shader, fragment_shader
 from .properties import get_area_index, get_area_dof_setting
 
@@ -51,6 +50,12 @@ def get_area_dof_setting_by_index(area_index, prop_name, default=False):
 	return getattr(bpy.context.window_manager, prop_name, default)
 
 def on_depsgraph_update(scene, depsgraph):
+   """
+   Handler called when Blender's dependency graph updates (objects move, geometry changes, etc.).
+   Performs selective batch updates to minimize performance impact by only recreating 
+   batches for objects that actually changed geometry or visibility.
+   """
+
 	if not dof_viz_state["area_handlers"] or not is_any_area_enabled():
 		return
 
@@ -95,10 +100,10 @@ def on_depsgraph_update(scene, depsgraph):
 
 	# 4. Perform targeted updates
 	if recreate_batches:
-		create_batches(bpy.context)
+		create_batches(bpy.context, dof_viz_state)
 		dof_viz_state["current_camera"] = bpy.context.scene.camera
 	elif geometry_changed_objects:
-		update_specific_batches(bpy.context, geometry_changed_objects)
+		update_specific_batches(bpy.context, geometry_changed_objects, dof_viz_state)
 
 	# Tag all relevant viewports for redraw
 	for window in bpy.context.window_manager.windows:
@@ -107,6 +112,12 @@ def on_depsgraph_update(scene, depsgraph):
 				area.tag_redraw()
 
 def update_handlers(context):
+   """
+   Manage draw handlers based on current UI settings.
+   Registers handlers for areas with enabled DoF visualization options,
+   unregisters handlers for disabled areas, and manages the global depsgraph handler.
+   """
+
 	area_index = get_area_index(context)
 	if area_index == -1:
 		return
@@ -134,17 +145,23 @@ def update_handlers(context):
 
 # --- Handler Registration ---
 def register_area_handlers(context, area_index):
+   """
+   Register draw handlers for a specific 3D viewport area.
+   Creates both overlay drawing and text display handlers, and ensures
+   GPU batches are available for rendering.
+   """
+
 	state = dof_viz_state
 	if area_index in state["area_handlers"]:
 		return
 
 	# Create batches if not already created
 	if not state["mesh_batches"]:
-		create_batches(context)
+		create_batches(context, dof_viz_state)
 
 	# Register handlers for this specific area
 	draw_handler = bpy.types.SpaceView3D.draw_handler_add(
-		lambda ctx: dof_draw_callback(ctx, area_index), 
+		lambda ctx: draw_dof_overlay(ctx, area_index), 
 		(context,), 'WINDOW', 'POST_VIEW'
 	)
 	text_handler = bpy.types.SpaceView3D.draw_handler_add(
@@ -160,6 +177,11 @@ def register_area_handlers(context, area_index):
 	print(f"DoF Visualizer: Handlers Registered for area {area_index}")
 
 def unregister_area_handlers(area_index):
+   """
+   Remove draw handlers for a specific area and clean up associated resources.
+   If no areas remain active, clears global mesh batches and shader state.
+   """
+
 	state = dof_viz_state
 	if area_index not in state["area_handlers"]:
 		return
@@ -196,26 +218,9 @@ def unregister_all_handlers():
 
 	print("DoF Visualizer: All Handlers Unregistered")
 
-@timeit
-def create_batches(context):
-	state = dof_viz_state
-	state["mesh_batches"].clear()
-	if state["shader"] is None:
-		state["shader"] = gpu.types.GPUShader(vertex_shader, fragment_shader)
-
-	depsgraph = context.evaluated_depsgraph_get()
-	visible_meshes = {obj.name for obj in context.visible_objects if obj.type == 'MESH'}
-
-	# Process objects in parallel-friendly way
-	for obj in context.visible_objects:
-		if obj.type == 'MESH' and obj.data:
-			create_single_batch(obj, depsgraph, state)
-
-	# Cache the current visible meshes for comparison
-	state["cached_visible_meshes"] = visible_meshes
-
 def calculate_dof_info(context):
 	"""Calculate DoF parameters using a physically-based model and store in state"""
+
 	scene_cam = context.scene.camera
 	if not scene_cam or not scene_cam.data.dof.use_dof:
 		dof_viz_state["info_data"] = {}
@@ -257,75 +262,9 @@ def calculate_dof_info(context):
 		"hyperfocal": hyperfocal,
 	}
 
-def update_specific_batches(context, changed_objects):
-	"""Update only specific objects that changed"""
-	state = dof_viz_state
-	depsgraph = context.evaluated_depsgraph_get()
+def draw_dof_overlay(context, target_area_index):
+	"""Draw DoF visualization overlay in the 3D viewport."""
 
-	for obj_name in changed_objects:
-		obj = bpy.context.scene.objects.get(obj_name)
-		if obj and obj.type == 'MESH' and obj.visible_get():
-			create_single_batch(obj, depsgraph, state)
-
-def create_single_batch(obj, depsgraph, state):
-	"""Create batch for a single object with optimizations"""
-	try:
-		obj_eval = obj.evaluated_get(depsgraph)
-		mesh = obj_eval.to_mesh()
-	except:
-		mesh = obj.data
-
-	if not mesh.vertices or not mesh.loops:
-		if 'to_mesh_clear' in dir(obj_eval): 
-			obj_eval.to_mesh_clear()
-		return
-
-	# Pre-allocate arrays with correct size
-	vertex_count = len(mesh.vertices)
-	vertex_positions = np.empty(vertex_count * 3, dtype=np.float32)
-	vertex_normals = np.empty(vertex_count * 3, dtype=np.float32)
-
-	# Use foreach_get for faster data access
-	mesh.vertices.foreach_get("co", vertex_positions)
-	mesh.vertices.foreach_get("normal", vertex_normals)
-
-	# Reshape in-place
-	vertex_positions.shape = (-1, 3)
-	vertex_normals.shape = (-1, 3)
-
-	# Calculate triangles once
-	mesh.calc_loop_triangles()
-	triangle_count = len(mesh.loop_triangles)
-
-	if triangle_count == 0:
-		if 'to_mesh_clear' in dir(obj_eval): 
-			obj_eval.to_mesh_clear()
-		return
-
-	# Pre-allocate triangle indices
-	loop_triangle_indices = np.empty(triangle_count * 3, dtype=np.int32)
-	mesh.loop_triangles.foreach_get("vertices", loop_triangle_indices)
-
-	# Direct indexing for triangle data
-	tris_vertices = vertex_positions[loop_triangle_indices]
-	tris_normals = vertex_normals[loop_triangle_indices]
-
-	# Create batch
-	batch = batch_for_shader(
-		state["shader"], 'TRIS', 
-		{"pos": tris_vertices, "normal": tris_normals}
-	)
-
-	state["mesh_batches"][obj.name] = {
-		"batch": batch,
-		"matrix": obj.matrix_world
-	}
-
-	if 'to_mesh_clear' in dir(obj_eval): 
-		obj_eval.to_mesh_clear()
-
-def dof_draw_callback(context, target_area_index):
-	"""The main drawing function called by the handler."""
 	# Only draw if we're in the target area
 	current_area_index = get_area_index(context)
 	if current_area_index != target_area_index:
@@ -432,7 +371,8 @@ def dof_draw_callback(context, target_area_index):
 		gpu.state.face_culling_set('NONE')
 
 def draw_dof_info_text(context, target_area_index):
-	"""Draws the formatted DoF information in the viewport."""
+	"""Draw DoF information text in the viewport."""
+
 	# Only draw if we're in the target area
 	current_area_index = get_area_index(context)
 	if current_area_index != target_area_index:
