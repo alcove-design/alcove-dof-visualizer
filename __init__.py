@@ -26,11 +26,11 @@ def cleanup_dynamic_properties():
 	"""Clean up all dynamic area-specific properties"""
 	wm = bpy.context.window_manager
 	props_to_remove = []
-	
+
 	for prop_name in dir(wm):
 		if prop_name.startswith("dof_viz_"):
 			props_to_remove.append(prop_name)
-	
+
 	for prop_name in props_to_remove:
 		try:
 			delattr(wm, prop_name)

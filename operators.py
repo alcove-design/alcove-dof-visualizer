@@ -7,9 +7,9 @@ class DOF_VIZ_OT_toggle_setting(bpy.types.Operator):
 	bl_idname = "dof_viz.toggle_setting"
 	bl_label = "Toggle DoF Setting"
 	bl_options = {'REGISTER'}
-	
+
 	setting_name: bpy.props.StringProperty()
-	
+
 	def execute(self, context):
 		current_value = get_area_dof_setting(context, self.setting_name)
 		new_value = not current_value

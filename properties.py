@@ -5,7 +5,7 @@ def get_area_index(context):
 	area = context.area
 	if not area:
 		return -1
-	
+
 	for i, a in enumerate(context.screen.areas):
 		if a == area:
 			return i
@@ -20,7 +20,7 @@ def get_area_dof_setting(context, prop_name, default=False):
 	area_index = get_area_index(context)
 	if area_index == -1:
 		return default
-	
+
 	prop_name = get_area_property_name(area_index, prop_name)
 	return getattr(context.window_manager, prop_name, default)
 
@@ -29,13 +29,13 @@ def set_area_dof_setting(context, prop_name, value):
 	area_index = get_area_index(context)
 	if area_index == -1:
 		return
-	
+
 	full_prop_name = get_area_property_name(area_index, prop_name)
-	
+
 	# Create the property if it doesn't exist
 	if not hasattr(context.window_manager, full_prop_name):
 		setattr(bpy.types.WindowManager, full_prop_name, bpy.props.BoolProperty(default=False))
-	
+
 	setattr(context.window_manager, full_prop_name, value)
 
 # --- UI & Property Group ---
