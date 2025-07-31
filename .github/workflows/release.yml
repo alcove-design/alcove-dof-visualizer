@@ -18,7 +18,7 @@ jobs:
 
       - name: Create zip
         run: |
-          zip -r myaddon-${GITHUB_REF_NAME}.zip * \
+          zip -r alcove-dof-visualizer-${GITHUB_REF_NAME}.zip * \
             -x "*.git*" ".github/*" "**/__pycache__/*" "*.pyc"
 
       - name: Generate release notes from milestone
@@ -36,7 +36,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ github.ref_name }}
-          files: myaddon-${GITHUB_REF_NAME}.zip
+          files: alcove-dof-visualizer-${{ github.ref_name }}.zip
           body: |
             ## Changes
             ${{ steps.notes.outputs.notes }}
