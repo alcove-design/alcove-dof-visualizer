@@ -1,0 +1,48 @@
+name: Build and Release Addon
+
+on:
+  push:
+    tags:
+      - 'v*' # triggers when you push a tag like v0.1.0-blender4.2
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GitHub CLI
+        run: sudo apt-get update && sudo apt-get install -y gh
+
+      - name: Create zip
+        run: |
+          zip -r myaddon-${GITHUB_REF_NAME}.zip * \
+            -x "*.git*" ".github/*" "**/__pycache__/*" "*.pyc"
+
+      - name: Generate release notes from milestone
+        id: notes
+        run: |
+          milestone="${GITHUB_REF_NAME}"
+          issues=$(gh issue list --state closed --milestone "$milestone" --json number,title --jq '.[] | "- #" + (.number|tostring) + " " + .title' 2>/dev/null || echo "(No changelog found)")
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$issues" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get tag message
+        id: tag
+        run: |
+          tag_message=$(git tag -l --format='%(contents)' ${GITHUB_REF_NAME})
+          echo "message=$tag_message" >> $GITHUB_OUTPUT
+
+      - name: Upload release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }} - ${{ steps.tag.outputs.message }}
+          files: myaddon-${GITHUB_REF_NAME}.zip
+          body: |
+            ## Changes
+            ${{ steps.notes.outputs.notes }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
