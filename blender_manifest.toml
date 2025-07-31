@@ -5,7 +5,7 @@ id = "alcove_dof_visualizer"
 version = "1.0.0"
 name = "Alcove DoF Visualizer"
 tagline = "Adds a real-time depth of field overlay and text info"
-maintainer = "Mehdi El Fadil - Alcove design"
+maintainer = "Alcove design - Mehdi El Fadil"
 type = "add-on"
 
 website = "https://github.com/alcove-design/alcove-dof-visualizer"
