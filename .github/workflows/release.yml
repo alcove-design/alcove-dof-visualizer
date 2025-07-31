@@ -3,7 +3,7 @@ name: Build and Release Addon
 on:
   push:
     tags:
-      - 'v*' # triggers when you push a tag like v0.1.0-blender4.2
+      - 'v*' # triggers when you push a tag like v0.1.0
 
 jobs:
   build-release:
@@ -32,19 +32,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get tag message
-        id: tag
-        run: |
-          tag_message=$(gh api repos/${{ github.repository }}/releases/tags/${GITHUB_REF_NAME} --jq '.name // empty' 2>/dev/null || echo "")
-          if [ -z "$tag_message" ]; then
-            tag_message=$(gh api repos/${{ github.repository }}/git/refs/tags/${GITHUB_REF_NAME} | jq -r '.object.sha' | xargs -I {} gh api repos/${{ github.repository }}/git/tags/{} | jq -r '.message // ""')
-          fi
-          echo "message=$tag_message" >> $GITHUB_OUTPUT
-
       - name: Upload release
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ github.ref_name }} - ${{ steps.tag.outputs.message }}
+          name: ${{ github.ref_name }}
           files: myaddon-${GITHUB_REF_NAME}.zip
           body: |
             ## Changes
