@@ -19,13 +19,9 @@ A Blender addon that provides real-time depth of field visualization in the 3D v
 
 ### 1. Download the addon
 
-In the [Releases](/alcove-design/alcove-dof-visualizer/releases) section of this repository, download the **ZIP file** that matches your Blender version.
+In the [Releases](/alcove-design/alcove-dof-visualizer/releases) section of this repository, download the latest **zip file**.
 
-The releases are named using the format:  `vX.Y.Z-blenderA.B`.
- 
-For instance, if you use Blender `v4.5`, you should download latest release with suffix `-blender4.5`.
-
-N.B. This addon relies on `numpy` python module, which should already be included in blender's python environment, so no extra install is needed.
+The releases are named using the format: `vX.Y.Z`.
 
 
 ### 2. Install the addon in blender
@@ -36,3 +32,5 @@ N.B. This addon relies on `numpy` python module, which should already be include
 4. Click the **Install...** button at the top right.
 5. In the file browser, select the ZIP file you downloaded and click **Install Add-on**.
 6. After installation, search for the addon in the list and enable it by checking the box next to its name.
+
+N.B. This addon relies on `numpy` python module, which should already be included in blender's python environment, so no extra install is needed.
