@@ -21,7 +21,7 @@ A Blender addon that provides real-time depth of field visualization in the 3D v
 
 In the [Releases](/alcove-design/alcove-dof-visualizer/releases) section of this repository, download the latest **zip file**.
 
-The releases are named using the format: `vX.Y.Z`.
+The releases are named using the format: `alcove-dof-visualizer-vX.Y.Z`.
 
 
 ### 2. Install the addon in blender
