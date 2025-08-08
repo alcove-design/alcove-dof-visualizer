@@ -50,11 +50,11 @@ def get_area_dof_setting_by_index(area_index, prop_name, default=False):
 	return getattr(bpy.context.window_manager, prop_name, default)
 
 def on_depsgraph_update(scene, depsgraph):
-   """
-   Handler called when Blender's dependency graph updates (objects move, geometry changes, etc.).
-   Performs selective batch updates to minimize performance impact by only recreating 
-   batches for objects that actually changed geometry or visibility.
-   """
+	"""
+	Handler called when Blender's dependency graph updates (objects move, geometry changes, etc.).
+	Performs selective batch updates to minimize performance impact by only recreating 
+	batches for objects that actually changed geometry or visibility.
+	"""
 
 	if not dof_viz_state["area_handlers"] or not is_any_area_enabled():
 		return
@@ -112,11 +112,11 @@ def on_depsgraph_update(scene, depsgraph):
 				area.tag_redraw()
 
 def update_handlers(context):
-   """
-   Manage draw handlers based on current UI settings.
-   Registers handlers for areas with enabled DoF visualization options,
-   unregisters handlers for disabled areas, and manages the global depsgraph handler.
-   """
+	"""
+	Manage draw handlers based on current UI settings.
+	Registers handlers for areas with enabled DoF visualization options,
+	unregisters handlers for disabled areas, and manages the global depsgraph handler.
+	"""
 
 	area_index = get_area_index(context)
 	if area_index == -1:
@@ -145,11 +145,11 @@ def update_handlers(context):
 
 # --- Handler Registration ---
 def register_area_handlers(context, area_index):
-   """
-   Register draw handlers for a specific 3D viewport area.
-   Creates both overlay drawing and text display handlers, and ensures
-   GPU batches are available for rendering.
-   """
+	"""
+	Register draw handlers for a specific 3D viewport area.
+	Creates both overlay drawing and text display handlers, and ensures
+	GPU batches are available for rendering.
+	"""
 
 	state = dof_viz_state
 	if area_index in state["area_handlers"]:
@@ -177,10 +177,10 @@ def register_area_handlers(context, area_index):
 	print(f"DoF Visualizer: Handlers Registered for area {area_index}")
 
 def unregister_area_handlers(area_index):
-   """
-   Remove draw handlers for a specific area and clean up associated resources.
-   If no areas remain active, clears global mesh batches and shader state.
-   """
+	"""
+	Remove draw handlers for a specific area and clean up associated resources.
+	If no areas remain active, clears global mesh batches and shader state.
+	"""
 
 	state = dof_viz_state
 	if area_index not in state["area_handlers"]:
@@ -334,7 +334,7 @@ def draw_dof_overlay(context, target_area_index):
 		shader.uniform_float("u_focus_distance", focus_distance)
 
 		# Define overlay colors
-		shader.uniform_float("u_in_focus_color", (0.8, 0.8, 0.8, 0.7))
+		shader.uniform_float("u_in_focus_color", (0.3, 0.8, 0.3, 0.7))
 		shader.uniform_float("u_near_color", (0.05, 0.1, 1, 0.7))
 		shader.uniform_float("u_far_color", (1, 0.08, 0.1, 0.7))
 		shader.uniform_float("u_far_gradient_color", (0.95, 0.43, 0.17, 0.7))
