@@ -25,7 +25,7 @@ jobs:
         id: notes
         run: |
           milestone="${GITHUB_REF_NAME}"
-          issues=$(gh issue list --state closed --milestone "$milestone" --json number,title --jq '.[] | "- #" + (.number|tostring) + " " + .title' 2>/dev/null || echo "(No changelog found)")
+          issues=$(gh issue list --milestone "$milestone" --json number,title --jq '.[] | "- #" + (.number|tostring) + " " + .title' 2>/dev/null || echo "(No changelog found)")
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$issues" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
