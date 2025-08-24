@@ -53,6 +53,22 @@ def set_area_dof_setting(context, prop_name, value):
 # and individual color picker properties
 # 
 #############################################################
+
+DEFAULT_COLORS = {
+	'near': (0.05, 0.1, 1.0, 0.7), # blue
+	'in_focus': (0.3, 0.8, 0.3, 0.7), # green
+	'far': (0.95, 0.43, 0.17, 0.7), # orange
+	'far_max': (1.0, 0.08, 0.1, 0.7), # red
+	'focal_plane': (1.0, 1.0, 1.0, 0.7) # white
+}
+COLORBLIND_COLORS = {
+	'near': (0.13, 0.4, 0.67, 1), # blue
+	'in_focus': (0.8, 0.8, 0.8, 0.7), # gray
+	'far': (0.96, 0.65, 0.5, 1), # orange
+	'far_max': (0.7, 0.09, 0.17, 0.8), # dark orange
+	'focal_plane': (1.0, 1.0, 1.0, 0.9) # white
+}
+
 class DoFVisualizerPreferences(bpy.types.AddonPreferences):
 	"""
 	Addon preferences for DoF Visualizer color customization.
@@ -73,19 +89,19 @@ class DoFVisualizerPreferences(bpy.types.AddonPreferences):
 
 	# Custom color properties (only shown when CUSTOM selected)
 	custom_near_color: bpy.props.FloatVectorProperty(
-		name="Near Blur", subtype='COLOR_GAMMA', size=4, default=(0.05, 0.1, 1.0, 0.7), min=0.0, max=1.0
+		name="Near Blur", subtype='COLOR_GAMMA', size=4, default=DEFAULT_COLORS['near'], min=0.0, max=1.0
 	)
 	custom_in_focus_color: bpy.props.FloatVectorProperty(
-		name="In Focus", subtype='COLOR_GAMMA', size=4, default=(0.3, 0.8, 0.3, 0.7), min=0.0, max=1.0
+		name="In Focus", subtype='COLOR_GAMMA', size=4, default=DEFAULT_COLORS['in_focus'], min=0.0, max=1.0
 	)
 	custom_far_color: bpy.props.FloatVectorProperty(
-		name="Far Blur", subtype='COLOR_GAMMA', size=4, default=(0.95, 0.43, 0.17, 0.7), min=0.0, max=1.0
+		name="Far Blur", subtype='COLOR_GAMMA', size=4, default=DEFAULT_COLORS['far'], min=0.0, max=1.0
 	)
 	custom_far_max_color: bpy.props.FloatVectorProperty(
-		name="Far Max Blur", subtype='COLOR_GAMMA', size=4, default=(1.0, 0.08, 0.1, 0.7), min=0.0, max=1.0
+		name="Far Max Blur", subtype='COLOR_GAMMA', size=4, default=DEFAULT_COLORS['far_max'], min=0.0, max=1.0
 	)
 	custom_focal_plane_color: bpy.props.FloatVectorProperty(
-		name="Focal Plane", subtype='COLOR_GAMMA', size=4, default=(0.0, 0.8, 0.0, 0.7), min=0.0, max=1.0
+		name="Focal Plane", subtype='COLOR_GAMMA', size=4, default=DEFAULT_COLORS['focal_plane'], min=0.0, max=1.0
 	)
 
 	def draw(self, context):
@@ -113,21 +129,9 @@ def get_color_values(color_type):
 	addon_prefs = bpy.context.preferences.addons[__package__].preferences
 
 	if addon_prefs.color_mode == 'DEFAULT':
-		colors = {
-			'near': (0.05, 0.1, 1.0, 0.7), # blue
-			'in_focus': (0.3, 0.8, 0.3, 0.7), # green
-			'far': (0.95, 0.43, 0.17, 0.7), # orange
-			'far_max': (1.0, 0.08, 0.1, 0.7), # red
-			'focal_plane': (1.0, 1.0, 1.0, 0.7) # white
-		}
+		colors = DEFAULT_COLORS
 	elif addon_prefs.color_mode == 'COLORBLIND':
-		colors = {
-			'near': (0.13, 0.4, 0.67, 1), # blue
-			'in_focus': (0.8, 0.8, 0.8, 0.7), # gray
-			'far': (0.96, 0.65, 0.5, 1), # orange
-			'far_max': (0.7, 0.09, 0.17, 0.8), # dark orange
-			'focal_plane': (1.0, 1.0, 1.0, 0.9) # white
-		}
+		colors = COLORBLIND_COLORS
 	else:  # CUSTOM
 		colors = {
 			'near': addon_prefs.custom_near_color[:],
