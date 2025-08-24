@@ -8,7 +8,6 @@ def draw_dof_viz_checkbox(self, context):
 		if area_index == -1:
 			return
 		
-		dof_settings = context.scene.dof_viz_settings
 		layout.separator()
 		layout.label(text="Depth of Field")
 

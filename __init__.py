@@ -11,9 +11,6 @@ bl_info = {
 import bpy
 from . import properties, ui, handlers, operators
 
-classes = (
-	properties.DofVizSettings,
-)
 
 @bpy.app.handlers.persistent
 def load_post_handler(dummy):
@@ -39,9 +36,6 @@ def cleanup_dynamic_properties():
 
 def register():
 	operators.register()
-	for cls in classes:
-		bpy.utils.register_class(cls)
-	bpy.types.Scene.dof_viz_settings = bpy.props.PointerProperty(type=properties.DofVizSettings)
 	bpy.types.VIEW3D_PT_overlay_motion_tracking.append(ui.draw_dof_viz_checkbox)
 	bpy.app.handlers.load_post.append(load_post_handler)
 
@@ -52,6 +46,4 @@ def unregister():
 	if load_post_handler in bpy.app.handlers.load_post:
 		bpy.app.handlers.load_post.remove(load_post_handler)
 	del bpy.types.Scene.dof_viz_settings
-	for cls in reversed(classes):
-		bpy.utils.unregister_class(cls)
 	operators.unregister()
