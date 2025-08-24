@@ -14,15 +14,15 @@ class DOF_VIZ_OT_toggle_setting(bpy.types.Operator):
 		current_value = get_area_dof_setting(context, self.setting_name)
 		new_value = not current_value
 		set_area_dof_setting(context, self.setting_name, new_value)
-		
+
 		# Update handlers for this area
 		handlers.update_handlers(context)
-		
+
 		# Force UI refresh
 		for area in context.screen.areas:
 			if area.type == 'VIEW_3D':
 				area.tag_redraw()
-		
+
 		return {'FINISHED'}
 
 def register():

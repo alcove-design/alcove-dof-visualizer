@@ -7,7 +7,7 @@ def draw_dof_viz_checkbox(self, context):
 		area_index = get_area_index(context)
 		if area_index == -1:
 			return
-		
+
 		layout.separator()
 		layout.label(text="Depth of Field")
 
@@ -33,6 +33,6 @@ def draw_dof_viz_checkbox(self, context):
 		row = sub_layout.row(align=True)
 		focal_op = row.operator("dof_viz.toggle_setting", text="Focal Plane", depress=show_focal)
 		focal_op.setting_name = "show_focal_plane"
-		
+
 		limits_op = row.operator("dof_viz.toggle_setting", text="DoF Limits", depress=show_limits)
 		limits_op.setting_name = "show_dof_limits"
