@@ -91,6 +91,8 @@ class DoFVisualizerPreferences(bpy.types.AddonPreferences):
 	def draw(self, context):
 		layout = self.layout
 
+		layout.label(text="Color Palette")
+
 		# Radio button group for color mode
 		row = layout.row(align=True)
 		row.prop(self, "color_mode", expand=True)
