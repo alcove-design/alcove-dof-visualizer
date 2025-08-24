@@ -174,8 +174,6 @@ def register_area_handlers(context, area_index):
 		"text_handler": text_handler
 	}
 
-	print(f"DoF Visualizer: Handlers Registered for area {area_index}")
-
 def unregister_area_handlers(area_index):
 	"""
 	Remove draw handlers for a specific area and clean up associated resources.
@@ -200,8 +198,6 @@ def unregister_area_handlers(area_index):
 		state["mesh_batches"].clear()
 		state["shader"] = None
 
-	print(f"DoF Visualizer: Handlers Unregistered for area {area_index}")
-
 def unregister_all_handlers():
 	"""Unregister all handlers (used during addon unregister)"""
 	state = dof_viz_state
@@ -215,8 +211,6 @@ def unregister_all_handlers():
 		if state["depsgraph_handler"] in bpy.app.handlers.depsgraph_update_post:
 			bpy.app.handlers.depsgraph_update_post.remove(state["depsgraph_handler"])
 		state["depsgraph_handler"] = None
-
-	print("DoF Visualizer: All Handlers Unregistered")
 
 def calculate_dof_info(context):
 	"""Calculate DoF parameters using a physically-based model and store in state"""
