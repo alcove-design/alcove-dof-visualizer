@@ -44,3 +44,95 @@ def set_area_dof_setting(context, prop_name, value):
 		setattr(bpy.types.WindowManager, full_prop_name, bpy.props.BoolProperty(default=False))
 
 	setattr(context.window_manager, full_prop_name, value)
+
+
+#############################################################
+# 
+# Overlay Colors Customization
+# Addon preferences for color modes (default, colorblind-friendly, custom)
+# and individual color picker properties
+# 
+#############################################################
+class DoFVisualizerPreferences(bpy.types.AddonPreferences):
+	"""
+	Addon preferences for DoF Visualizer color customization.
+	Provides options for default, colorblind-friendly, or custom color palettes
+	for the depth of field visualization overlays.
+	"""
+	bl_idname = __package__
+
+	color_mode: bpy.props.EnumProperty(
+		name="Color Mode",
+		items=[
+			('DEFAULT', "Default", "Standard colors"),
+			('COLORBLIND', "Colorblind Friendly", "High contrast colors safe for colorblind users"), 
+			('CUSTOM', "Custom", "Choose your own colors")
+		],
+		default='DEFAULT',
+	)
+
+	# Custom color properties (only shown when CUSTOM selected)
+	custom_near_color: bpy.props.FloatVectorProperty(
+		name="Near Blur", subtype='COLOR_GAMMA', size=4, default=(0.05, 0.1, 1.0, 0.7), min=0.0, max=1.0
+	)
+	custom_in_focus_color: bpy.props.FloatVectorProperty(
+		name="In Focus", subtype='COLOR_GAMMA', size=4, default=(0.3, 0.8, 0.3, 0.7), min=0.0, max=1.0
+	)
+	custom_far_color: bpy.props.FloatVectorProperty(
+		name="Far Blur", subtype='COLOR_GAMMA', size=4, default=(0.95, 0.43, 0.17, 0.7), min=0.0, max=1.0
+	)
+	custom_far_max_color: bpy.props.FloatVectorProperty(
+		name="Far Max Blur", subtype='COLOR_GAMMA', size=4, default=(1.0, 0.08, 0.1, 0.7), min=0.0, max=1.0
+	)
+	custom_focal_plane_color: bpy.props.FloatVectorProperty(
+		name="Focal Plane", subtype='COLOR_GAMMA', size=4, default=(0.0, 0.8, 0.0, 0.7), min=0.0, max=1.0
+	)
+
+	def draw(self, context):
+		layout = self.layout
+
+		# Radio button group for color mode
+		row = layout.row(align=True)
+		row.prop(self, "color_mode", expand=True)
+
+		# Custom color pickers (only visible when CUSTOM selected)
+		if self.color_mode == 'CUSTOM':
+			box = layout.box()
+			box.label(text="Custom Colors:")
+			col = box.column()
+			col.prop(self, "custom_near_color")
+			col.prop(self, "custom_in_focus_color")
+			col.prop(self, "custom_far_color")
+			col.prop(self, "custom_far_max_color")
+			col.prop(self, "custom_focal_plane_color")
+
+def get_color_values(color_type):
+	"""Get color values based on current mode"""
+	addon_prefs = bpy.context.preferences.addons[__package__].preferences
+
+	if addon_prefs.color_mode == 'DEFAULT':
+		colors = {
+			'near': (0.05, 0.1, 1.0, 0.7),
+			'in_focus': (0.3, 0.8, 0.3, 0.7),
+			'far': (0.95, 0.43, 0.17, 0.7),
+			'far_max': (1.0, 0.08, 0.1, 0.7),
+			'focal_plane': (0.0, 0.8, 0.0, 0.7)
+		}
+	elif addon_prefs.color_mode == 'COLORBLIND':
+		colors = {
+			'near': (0.9, 0.6, 0.0, 0.7),  # Orange
+			'in_focus': (0.8, 0.8, 0.8, 0.7), # Gray
+			'far': (0.35, 0.7, 0.9, 0.7),  # Sky blue
+			'far_max': (0.0, 0.45, 0.7, 0.7),  # Darker blue
+			'focal_plane': (0.0, 0.6, 0.5, 0.7)  # Teal
+		}
+	else:  # CUSTOM
+		colors = {
+			'near': addon_prefs.custom_near_color[:],
+			'in_focus': addon_prefs.custom_in_focus_color[:],
+			'far': addon_prefs.custom_far_color[:],
+			'far_max': addon_prefs.custom_far_max_color[:],
+			'focal_plane': addon_prefs.custom_focal_plane_color[:]
+		}
+
+	return colors[color_type]

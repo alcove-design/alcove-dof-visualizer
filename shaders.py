@@ -24,12 +24,12 @@ vertex_shader = """
 fragment_shader = """
     uniform vec4 u_in_focus_color;
     uniform vec4 u_near_color;
-    uniform vec4 u_far_color;
+    uniform vec4 u_far_max_color;
     uniform float u_dof_near_plane;
     uniform float u_dof_far_plane;
     uniform float u_focus_distance;
     uniform float u_frag_depth_offset;
-    uniform vec4 u_far_gradient_color;
+    uniform vec4 u_far_color;
     uniform vec3 u_light_direction;
     uniform float u_ambient_factor;
     uniform vec4 u_focus_plane_color;
@@ -60,7 +60,7 @@ fragment_shader = """
             }
             // Only draw the far limit if it's not at infinity
             if (u_dof_far_plane < 1.0e37 && abs(v_scene_cam_depth - u_dof_far_plane) < u_focus_plane_tolerance) {
-                fragColor = u_far_color;
+                fragColor = u_far_max_color;
                 return;
             }
         }
@@ -85,7 +85,7 @@ fragment_shader = """
 
                 // If the far plane is at infinity or beyond the hyperfocal distance, just use the far color.
                 if (gradient_start >= gradient_end) {
-                    base_color = u_far_color;
+                    base_color = u_far_max_color;
                 } else {
                     // Calculate 't' as the normalized position of the fragment within the gradient range.
                     float t = clamp((v_scene_cam_depth - gradient_start) / (gradient_end - gradient_start), 0.0, 1.0);
@@ -94,11 +94,11 @@ fragment_shader = """
                     if (t < 0.8) {
                         // Remap t from [0, 0.8] to [0, 1] for the first gradient segment
                         float t_segment1 = t / 0.8;
-                        base_color = mix(u_in_focus_color, u_far_gradient_color, t_segment1);
+                        base_color = mix(u_in_focus_color, u_far_color, t_segment1);
                     } else {
                         // Remap t from [0.8, 1.0] to [0, 1] for the second gradient segment
                         float t_segment2 = (t - 0.8) / 0.2;
-                        base_color = mix(u_far_gradient_color, u_far_color, t_segment2);
+                        base_color = mix(u_far_color, u_far_max_color, t_segment2);
                     }
                 }
             }

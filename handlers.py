@@ -5,7 +5,7 @@ from mathutils import Vector
 
 from .batches import create_batches, update_specific_batches, create_single_batch
 from .shaders import vertex_shader, fragment_shader
-from .properties import get_area_index, get_area_dof_setting
+from .properties import get_area_index, get_area_dof_setting, get_color_values
 
 import time
 
@@ -77,7 +77,7 @@ def on_depsgraph_update(scene, depsgraph):
 	if not recreate_batches and not geometry_changed_objects:
 		current_visible_meshes = {obj.name for obj in bpy.context.visible_objects if obj.type == 'MESH'}
 		cached_visible_meshes = dof_viz_state.get("cached_visible_meshes", set())
-		
+
 		if current_visible_meshes != cached_visible_meshes:
 			# Only recreate batches for objects that changed visibility
 			removed_objects = cached_visible_meshes - current_visible_meshes
@@ -334,11 +334,12 @@ def draw_dof_overlay(context, target_area_index):
 		shader.uniform_float("u_focus_distance", focus_distance)
 
 		# Define overlay colors
-		shader.uniform_float("u_in_focus_color", (0.3, 0.8, 0.3, 0.7))
-		shader.uniform_float("u_near_color", (0.05, 0.1, 1, 0.7))
-		shader.uniform_float("u_far_color", (1, 0.08, 0.1, 0.7))
-		shader.uniform_float("u_far_gradient_color", (0.95, 0.43, 0.17, 0.7))
-		shader.uniform_float("u_focus_plane_color", (0.0, 0.8, 0.0, 0.7)) # Green, opaque for laser effect
+		shader.uniform_float("u_near_color", get_color_values('near'))
+		shader.uniform_float("u_in_focus_color", get_color_values('in_focus'))
+		shader.uniform_float("u_far_color", get_color_values('far'))
+		shader.uniform_float("u_far_max_color", get_color_values('far_max'))
+		shader.uniform_float("u_focus_plane_color", get_color_values('focal_plane'))
+
 		shader.uniform_float("u_frag_depth_offset", frag_depth_offset)
 		shader.uniform_float("u_light_direction", light_direction)
 		shader.uniform_float("u_ambient_factor", ambient_factor)
@@ -441,6 +442,6 @@ def draw_dof_info_text(context, target_area_index):
 		blf.position(font_id, x_margin, y_pos, 0)
 		blf.draw(font_id, line)
 		y_pos -= line_height
-		
+
 	# --- Cleanup ---
 	blf.disable(font_id, blf.SHADOW)
