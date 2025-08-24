@@ -112,19 +112,19 @@ def get_color_values(color_type):
 
 	if addon_prefs.color_mode == 'DEFAULT':
 		colors = {
-			'near': (0.05, 0.1, 1.0, 0.7),
-			'in_focus': (0.3, 0.8, 0.3, 0.7),
-			'far': (0.95, 0.43, 0.17, 0.7),
-			'far_max': (1.0, 0.08, 0.1, 0.7),
-			'focal_plane': (0.0, 0.8, 0.0, 0.7)
+			'near': (0.05, 0.1, 1.0, 0.7), # blue
+			'in_focus': (0.3, 0.8, 0.3, 0.7), # green
+			'far': (0.95, 0.43, 0.17, 0.7), # orange
+			'far_max': (1.0, 0.08, 0.1, 0.7), # red
+			'focal_plane': (1.0, 1.0, 1.0, 0.7) # white
 		}
 	elif addon_prefs.color_mode == 'COLORBLIND':
 		colors = {
-			'near': (0.9, 0.6, 0.0, 0.7),  # Orange
-			'in_focus': (0.8, 0.8, 0.8, 0.7), # Gray
-			'far': (0.35, 0.7, 0.9, 0.7),  # Sky blue
-			'far_max': (0.0, 0.45, 0.7, 0.7),  # Darker blue
-			'focal_plane': (0.0, 0.6, 0.5, 0.7)  # Teal
+			'near': (0.13, 0.4, 0.67, 1), # blue
+			'in_focus': (0.8, 0.8, 0.8, 0.7), # gray
+			'far': (0.96, 0.65, 0.5, 1), # orange
+			'far_max': (0.7, 0.09, 0.17, 0.8), # dark orange
+			'focal_plane': (1.0, 1.0, 1.0, 0.9) # white
 		}
 	else:  # CUSTOM
 		colors = {
