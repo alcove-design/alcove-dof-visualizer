@@ -122,7 +122,7 @@ fragment_shader = """
                 }
             }
         } else {
-            base_color = u_in_focus_color; // Default to in-focus color if gradients are off
+            base_color = vec4(0.0, 0.0, 0.0, 0.0); // Fully transparent when gradients are disabled
         }
 
         fragColor = vec4(base_color.rgb * (light_factor + u_ambient_factor), base_color.a);
