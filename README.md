@@ -48,11 +48,24 @@ N.B. This addon relies on `numpy` python module, which should already be include
 
 The DoF visualizer provides a handful of overlay options showing depth of field information for the active camera.
 
-1.  Activate by toggling the buttoms at the bottom of the **Viewport Overlays** popover menu (this menu is usually located in the top-right corner of the viewport).
-2.  Four toggle buttons are available:
-    *   **Text Info**: Displays technical information about the DoF settings, such as focus distance, f-stop, hyperfocal distance, and the near/far limits of the depth of field.
-    *   **Gradient**: Shows a color gradient overlay that visualizes the depth of field. The in-focus area is clear, while out-of-focus areas are tinted.
-    *   **Focal Plane**: Displays a "laser ray" band that indicates the exact point of focus.
-    *   **DoF Limits**: Shows two bands that mark the near and far limits of the depth of field.
+Four visualizations can be turned on and off in any combination to suit your needs. The visualizations will update in real-time as you adjust your camera's DoF settings or move the camera and focus object.
 
-You can toggle these visualizations on and off in any combination to suit your needs. The visualizations will update in real-time as you adjust your camera's DoF settings or move the camera and focus object.
+<table align="center">
+	<tr>
+		<td valign="top">
+			<h3>Find the Controls</h3>
+			<p>
+				Activate the overlays by toggling the buttons at the bottom of the <strong>Viewport Overlays<strong> popover menu (this menu is usually located in the top-right corner of the viewport).
+			</p>
+			<ul>
+				<li>**Text Info**: Displays technical information about the DoF settings, such as focus distance, f-stop, hyperfocal distance, and the near/far limits of the depth of field.</li>
+				<li>**Gradient**: Shows a color gradient overlay that visualizes the depth of field. The in-focus area is clear, while out-of-focus areas are tinted.</li>
+				<li>**Focal Plane**: Displays a "laser ray" band that indicates the exact point of focus.</li>
+				<li>**DoF Limits**: Shows two bands that mark the near and far limits of the depth of field.</li>
+			</ul>
+		</td>
+		<td style="max-width:450px; width: 100%" width="450">
+			<img src="docs/visualization-options.jpg" alt="UI Screenshot" width="450">
+		</td>
+	</tr>
+</table>
