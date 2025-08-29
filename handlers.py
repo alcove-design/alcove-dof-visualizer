@@ -326,6 +326,9 @@ def draw_dof_overlay(context, target_area_index):
 		shader.uniform_float("u_dof_near_plane", dof_near)
 		shader.uniform_float("u_dof_far_plane", dof_far)
 		shader.uniform_float("u_focus_distance", focus_distance)
+		shader.uniform_float("u_aperture_fstop", context.scene.camera.data.dof.aperture_fstop)
+		shader.uniform_float("u_focal_length_m", context.scene.camera.data.lens / 1000.0)
+		shader.uniform_float("u_sensor_width", context.scene.camera.data.sensor_width / 1000.0)
 
 		# Define overlay colors
 		shader.uniform_float("u_near_color", get_color_values('near'))

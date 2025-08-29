@@ -22,18 +22,24 @@ vertex_shader = """
 """
 
 fragment_shader = """
-    uniform vec4 u_in_focus_color;
-    uniform vec4 u_near_color;
-    uniform vec4 u_far_max_color;
+    uniform float u_aperture_fstop;
+    uniform float u_focal_length_m;
+    uniform float u_sensor_width;
     uniform float u_dof_near_plane;
     uniform float u_dof_far_plane;
     uniform float u_focus_distance;
     uniform float u_frag_depth_offset;
+
+    uniform vec4 u_far_max_color;
+    uniform vec4 u_in_focus_color;
+    uniform vec4 u_near_color;
     uniform vec4 u_far_color;
+    uniform vec4 u_focus_plane_color;
+
     uniform vec3 u_light_direction;
     uniform float u_ambient_factor;
-    uniform vec4 u_focus_plane_color;
     uniform float u_focus_plane_tolerance;
+
     uniform bool u_show_focal_plane;
     uniform bool u_show_dof_limits;
     uniform bool u_show_depth_of_field;
@@ -76,12 +82,29 @@ fragment_shader = """
             }
             else if (v_scene_cam_depth > u_dof_far_plane) // Far field (background)
             {
-                // Simplified and more robust gradient calculation
-                // We interpolate directly based on the distance between the far DoF plane and the hyperfocal distance.
-                // This avoids the numerical instability of the CoC calculations at large distances.
+				float gradient_start = u_dof_far_plane;
 
-                float gradient_start = u_dof_far_plane;
-                float gradient_end = u_dof_far_plane * 2.3 + u_focus_distance / 2;
+				// Find distance where blur reaches the standard "acceptable sharpness" threshold
+				float standard_coc = u_sensor_width / 1500.0;
+
+				// Use physics formula to solve for distance S₂ where CoC = standard_coc
+				// From: c = (f² / (N * (S₁ - f))) * |1/S₁ - 1/S₂|
+				// Solved for S₂: S₂ = 1 / (1/S₁ - (c * N * (S₁ - f)) / f²)
+				float gradient_end;
+
+				if (u_focus_distance <= 0.0 || u_focal_length_m <= 0.0) {
+					gradient_end = u_focus_distance * 10.0; // Safe fallback
+				}
+				else {
+
+					float term = (standard_coc * u_aperture_fstop * (u_focus_distance - u_focal_length_m)) / (u_focal_length_m * u_focal_length_m);
+
+					if (term >= 1.0/u_focus_distance) {
+						gradient_end = u_focus_distance * 10.0; // Fallback to reasonable distance
+					} else {
+						gradient_end = 1.0 / (1.0/u_focus_distance - term);
+					}
+				}
 
                 // If the far plane is at infinity or beyond the hyperfocal distance, just use the far color.
                 if (gradient_start >= gradient_end) {
