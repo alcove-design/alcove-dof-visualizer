@@ -55,13 +55,13 @@ Four visualizations can be turned on and off in any combination to suit your nee
 		<td valign="top">
 			<h3>Find the Controls</h3>
 			<p>
-				Activate the overlays by toggling the buttons at the bottom of the <strong>Viewport Overlays<strong> popover menu (this menu is usually located in the top-right corner of the viewport).
+				Activate the overlays by toggling the buttons at the bottom of the <strong>Viewport Overlays</strong> popover menu (this menu is usually located in the top-right corner of the viewport).
 			</p>
 			<ul>
-				<li>**Text Info**: Displays technical information about the DoF settings, such as focus distance, f-stop, hyperfocal distance, and the near/far limits of the depth of field.</li>
-				<li>**Gradient**: Shows a color gradient overlay that visualizes the depth of field. The in-focus area is clear, while out-of-focus areas are tinted.</li>
-				<li>**Focal Plane**: Displays a "laser ray" band that indicates the exact point of focus.</li>
-				<li>**DoF Limits**: Shows two bands that mark the near and far limits of the depth of field.</li>
+				<li><strong>Text Info</strong>: Displays technical information about the DoF settings, such as focus distance, f-stop, hyperfocal distance, and the near/far limits of the depth of field.</li>
+				<li><strong>Gradient</strong>: Shows a color gradient overlay that visualizes the depth of field. The in-focus area is clear, while out-of-focus areas are tinted.</li>
+				<li><strong>Focal Plane</strong>: Displays a "laser ray" band that indicates the exact point of focus.</li>
+				<li><strong>DoF Limits</strong>: Shows two bands that mark the near and far limits of the depth of field.</li>
 			</ul>
 		</td>
 		<td style="max-width:450px; width: 100%" width="450">
