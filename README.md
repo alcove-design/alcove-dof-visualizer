@@ -56,24 +56,14 @@ Four visualizations can be turned on and off in any combination to suit your nee
 
 ### Toggle the overlays
 
-<table align="center" style="border:none;">
-	<tr>
-		<td valign="top">
-			<p>
-				Activate the overlays by toggling the buttons at the bottom of the <strong>Viewport Overlays</strong> popover menu (this menu is usually located in the top-right corner of the viewport).
-			</p>
-			<ul>
-				<li><strong>Text Info</strong>: Displays technical information about the DoF settings, such as focus distance, f-stop, hyperfocal distance, and the near/far limits of the depth of field.</li>
-				<li><strong>Gradient</strong>: Shows a color gradient overlay that visualizes the depth of field. The in-focus area is clear, while out-of-focus areas are tinted.</li>
-				<li><strong>Focal Plane</strong>: Displays a "laser ray" band that indicates the exact point of focus.</li>
-				<li><strong>DoF Limits</strong>: Shows two bands that mark the near and far limits of the depth of field.</li>
-			</ul>
-		</td>
-		<td style="max-width:450px; width: 100%">
-			<img src="docs/visualization-options.jpg" alt="UI Screenshot" width="450" height="450">
-		</td>
-	</tr>
-</table>
+<img src="docs/visualization-options.jpg" alt="UI Screenshot" style="max-width:450px; width: 100%" width="450" height="450">
+
+Open the **Viewport Overlays** menu in the viewport header (top-right) and enable the desired options:
+
+* **Text Info**: Displays technical information about the DoF settings, such as focus distance, f-stop, hyperfocal distance, and the near/far limits of the depth of field.
+* **Gradient**: Shows a color gradient overlay that visualizes the depth of field. The in-focus area is clear, while out-of-focus areas are tinted.
+* **Focal Plane**: Displays a "laser ray" band that indicates the exact point of focus.
+* **DoF Limits**: Shows two bands that mark the near and far limits of the depth of field.
 
 
 ### Customize
@@ -85,6 +75,14 @@ Toggle between preset color palettes or choose your own colors in the addon's pr
 Defocus blur gradient overlay with the colorblind-friendly palette looks as below:
 
 <img src="docs/colorblind-mode.jpg" alt="" style="max-width: 100%; height: auto;" width="800" height="450" />
+
+## Limitations
+
+The following limitations may be addressed in future updates:
+
+* The DoF overlays only render on front-facing surfaces. Objects with flipped normals or incorrect face orientation won't display the color visualization.
+* The overlays only work on mesh objects, not on particles, curves or text.
+* The overlays update in real-time when editing the scene (changing camera settings, moving/transforming objects). However, when an object is modified in Edit Mode, the DoF visualization won't update on the changed geometry until you save and reopen the blend file.
 
 ## Credits
 
