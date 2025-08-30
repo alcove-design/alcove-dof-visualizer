@@ -12,6 +12,8 @@ A Blender addon that provides real-time depth of field visualization in the 3D v
 * [Features](#features)
 * [Installation](#installation)
 * [Usage](#usage)
+* [Limitations](#limitations)
+* [Credits](#credits)
 
 
 ## Features
@@ -26,6 +28,7 @@ Preview depth of field effects _from any viewing angle_, making it easier to com
 - Works with focus objects and manual focus distance
 
 <img src="docs/overlays-documentation.jpg" alt="" style="max-width: 100%; height: auto;" width="1491" height="839" />
+
 
 ## Installation
 
