@@ -56,7 +56,7 @@ Four visualizations can be turned on and off in any combination to suit your nee
 
 ### Toggle the overlays
 
-<img src="docs/visualization-options.jpg" alt="UI Screenshot" style="max-width:450px; width: 100%" width="450" height="450">
+<img src="docs/visualization-options.jpg" alt="UI Screenshot" style="max-width: 100%; height: auto;" width="450" height="450">
 
 Open the **Viewport Overlays** menu in the viewport header (top-right) and enable the desired options:
 
