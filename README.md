@@ -50,10 +50,9 @@ The DoF visualizer provides a handful of overlay options showing depth of field 
 
 Four visualizations can be turned on and off in any combination to suit your needs. The visualizations will update in real-time as you adjust your camera's DoF settings or move the camera and focus object.
 
-<table align="center">
+<table align="center" style="border:none;">
 	<tr>
 		<td valign="top">
-			<h3>Find the Controls</h3>
 			<p>
 				Activate the overlays by toggling the buttons at the bottom of the <strong>Viewport Overlays</strong> popover menu (this menu is usually located in the top-right corner of the viewport).
 			</p>
