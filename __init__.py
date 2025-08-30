@@ -1,7 +1,7 @@
 bl_info = {
 	"name": "Alcove DoF Visualizer",
 	"author": "Alcove design - Mehdi El Fadil",
-	"version": (0, 1, 3),
+	"version": (0, 2, 0),
 	"blender": (4, 2, 0),
 	"location": "View3D > Overlays Popover",
 	"description": "Adds a real-time depth of field overlay and text info",

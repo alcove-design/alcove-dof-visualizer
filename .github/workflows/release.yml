@@ -19,7 +19,7 @@ jobs:
       - name: Create zip
         run: |
           zip -r alcove-dof-visualizer-${GITHUB_REF_NAME}.zip * \
-            -x "*.git*" ".github/*" "**/__pycache__/*" "*.pyc"
+            -x "*.git*" ".github/*" "**/__pycache__/*" "*.pyc" "docs/*"
 
       - name: Generate release notes from milestone
         id: notes

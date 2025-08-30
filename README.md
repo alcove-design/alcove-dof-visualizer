@@ -4,6 +4,9 @@ A Blender addon that provides real-time depth of field visualization in the 3D v
 
 ![Experimental](https://img.shields.io/badge/status-experimental-yellow)
 
+<img src="docs/alcove-dof-visualizer.jpg" alt="" style="max-width: 100%; height: auto;" width="2131" height="971" />
+
+
 ## Contents
 
 * [Features](#features)
@@ -22,6 +25,7 @@ Preview depth of field effects _from any viewing angle_, making it easier to com
 - Live text info display
 - Works with focus objects and manual focus distance
 
+<img src="docs/overlays-documentation.jpg" alt="" style="max-width: 100%; height: auto;" width="1491" height="839" />
 
 ## Installation
 
@@ -50,6 +54,8 @@ The DoF visualizer provides a handful of overlay options showing depth of field 
 
 Four visualizations can be turned on and off in any combination to suit your needs. The visualizations will update in real-time as you adjust your camera's DoF settings or move the camera and focus object.
 
+### Toggle the overlays
+
 <table align="center" style="border:none;">
 	<tr>
 		<td valign="top">
@@ -63,8 +69,23 @@ Four visualizations can be turned on and off in any combination to suit your nee
 				<li><strong>DoF Limits</strong>: Shows two bands that mark the near and far limits of the depth of field.</li>
 			</ul>
 		</td>
-		<td style="max-width:450px; width: 100%" width="450">
-			<img src="docs/visualization-options.jpg" alt="UI Screenshot" width="450">
+		<td style="max-width:450px; width: 100%">
+			<img src="docs/visualization-options.jpg" alt="UI Screenshot" width="450" height="450">
 		</td>
 	</tr>
 </table>
+
+
+### Customize
+
+Toggle between preset color palettes or choose your own colors in the addon's preferences menu.
+
+![](docs/addon-preferences.jpg)
+
+Defocus blur gradient overlay with the colorblind-friendly palette looks as below:
+
+<img src="docs/colorblind-mode.jpg" alt="" style="max-width: 100%; height: auto;" width="800" height="450" />
+
+## Credits
+
+This README file uses the interior design scene from [Blender 4.1 splash screen](https://www.blender.org/download/demo-files/#splash), created by Lynxsdesign and released under a Creative Commons Attribution (CC BY) license.
