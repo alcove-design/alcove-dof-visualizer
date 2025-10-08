@@ -22,13 +22,6 @@ def create_batches(context, state):
 			shader_info.vertex_in(0, 'VEC3', "pos")
 			shader_info.vertex_in(1, 'VEC3', "normal")
 
-			# Define vertex outputs (must match fragment inputs)
-			shader_info.vertex_out(0, 'FLOAT', "v_scene_cam_depth")
-			shader_info.vertex_out(1, 'VEC3', "v_normal")
-
-			# Define fragment output
-			shader_info.fragment_out(0, 'VEC4', "fragColor")
-
 			# Define all uniforms used in handlers.py
 			shader_info.push_constant('MAT4', "u_modelViewProjectionMatrix")
 			shader_info.push_constant('MAT4', "u_modelMatrix")
