@@ -16,7 +16,7 @@ def create_batches(context, state):
 			# Try new method first (Blender 4.5+ Metal compatibility)
 			shader_info = gpu.types.GPUShaderCreateInfo()
 			shader_info.vertex_source(vertex_shader)
-			shader_info.fragment_source(fragment_shader)
+			shader.fragment_source(fragment_shader)
 
 			# Define vertex inputs (based on batch creation)
 			shader_info.vertex_in(0, 'VEC3', "pos")
@@ -47,11 +47,8 @@ def create_batches(context, state):
 
 			state["shader"] = gpu.shader.create_from_info(shader_info)
 		except (AttributeError, Exception):
-			if hasattr(gpu.types, 'GPUShader'):
-				# Fallback for older Blender versions
-				state["shader"] = gpu.types.GPUShader(vertex_shader, fragment_shader)
-			else:
-				raise RuntimeError("Unable to create shader: neither new Metal API nor legacy GPUShader are available")
+			# Fallback for older Blender versions
+			state["shader"] = gpu.types.GPUShader(vertex_shader, fragment_shader)
 
 	depsgraph = context.evaluated_depsgraph_get()
 	visible_meshes = {obj.name for obj in context.visible_objects if obj.type == 'MESH'}
