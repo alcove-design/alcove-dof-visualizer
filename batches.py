@@ -1,7 +1,6 @@
 import bpy
 import gpu
 import numpy as np
-import gpu.shader
 from gpu_extras.batch import batch_for_shader
 
 from .shaders import vertex_shader, fragment_shader
@@ -12,43 +11,7 @@ def create_batches(context, state):
 
 	state["mesh_batches"].clear()
 	if state["shader"] is None:
-		try:
-			# Try new method first (Blender 4.5+ Metal compatibility)
-			shader_info = gpu.types.GPUShaderCreateInfo()
-			shader_info.vertex_source(vertex_shader)
-			shader.fragment_source(fragment_shader)
-
-			# Define vertex inputs (based on batch creation)
-			shader_info.vertex_in(0, 'VEC3', "pos")
-			shader_info.vertex_in(1, 'VEC3', "normal")
-
-			# Define all uniforms used in handlers.py
-			shader_info.uniform_float("u_modelViewProjectionMatrix", 16)
-			shader_info.uniform_float("u_modelMatrix", 16)
-			shader_info.uniform_float("u_sceneCameraViewMatrix", 16)
-			shader_info.uniform_float("u_dof_near_plane")
-			shader_info.uniform_float("u_dof_far_plane")
-			shader_info.uniform_float("u_focus_distance")
-			shader_info.uniform_float("u_aperture_fstop")
-			shader_info.uniform_float("u_focal_length_m")
-			shader_info.uniform_float("u_sensor_width")
-			shader_info.uniform_float("u_near_color", 4)
-			shader_info.uniform_float("u_in_focus_color", 4)
-			shader_info.uniform_float("u_far_color", 4)
-			shader_info.uniform_float("u_far_max_color", 4)
-			shader_info.uniform_float("u_focus_plane_color", 4)
-			shader_info.uniform_float("u_frag_depth_offset")
-			shader_info.uniform_float("u_light_direction", 3)
-			shader_info.uniform_float("u_ambient_factor")
-			shader_info.uniform_float("u_focus_plane_tolerance")
-			shader_info.uniform_bool("u_show_focal_plane")
-			shader_info.uniform_bool("u_show_dof_limits")
-			shader_info.uniform_bool("u_show_depth_of_field")
-
-			state["shader"] = gpu.shader.create_from_info(shader_info)
-		except (AttributeError, Exception):
-			# Fallback for older Blender versions
-			state["shader"] = gpu.types.GPUShader(vertex_shader, fragment_shader)
+		state["shader"] = gpu.types.GPUShader(vertex_shader, fragment_shader)
 
 	depsgraph = context.evaluated_depsgraph_get()
 	visible_meshes = {obj.name for obj in context.visible_objects if obj.type == 'MESH'}
