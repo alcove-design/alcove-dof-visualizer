@@ -2,9 +2,18 @@
 
 A Blender addon that provides real-time depth of field visualization in the 3D viewport. Helps cinematographers and photographers visualize focus zones, hyperfocal distances, and DoF limits directly in their scene.
 
+<img src="docs/alcove-dof-visualizer.jpg" alt="" style="max-width: 100%; height: auto;" width="2131" height="971" />
+
+
 ![Experimental](https://img.shields.io/badge/status-experimental-yellow)
 
-<img src="docs/alcove-dof-visualizer.jpg" alt="" style="max-width: 100%; height: auto;" width="2131" height="971" />
+GPU API support:
+
+| API     | Support | Notes              |
+|----------|----------|-------------------|
+| OpenGL   | 🟢 Yes   | Fully supported   |
+| Vulkan   | 🟡 Unknown | Not tested yet   |
+| Metal    | 🔴 No    | Not compatible    |
 
 
 ## Contents

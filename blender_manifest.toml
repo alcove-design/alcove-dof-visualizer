@@ -2,7 +2,7 @@
 schema_version = "1.0.0"
 
 id = "alcove_dof_visualizer"
-version = "0.2.0"
+version = "0.2.1"
 name = "Alcove DoF Visualizer"
 tagline = "Adds a real-time depth of field overlay and text info"
 maintainer = "Alcove design - Mehdi El Fadil"
