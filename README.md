@@ -15,6 +15,7 @@ GPU API support:
 | Vulkan   | 🟡 Unknown | Not tested yet   |
 | Metal    | 🔴 No    | Not compatible    |
 
+Contributions welcome - especially testing Vulkan support or adding Metal compatibility.
 
 ## Contents
 
